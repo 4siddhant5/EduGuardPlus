@@ -106,6 +106,7 @@ npx expo start
 # Press 'a' for Android, 'i' for iOS, 'w' for web
 ```
 
+
 ---
 
 ## 📦 Key Dependencies
