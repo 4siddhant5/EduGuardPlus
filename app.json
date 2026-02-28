@@ -1,0 +1,12 @@
+{
+    "expo": {
+        "name": "EduGuard",
+        "slug": "eduguard",
+        "version": "1.0.0",
+        "platforms": [
+            "ios",
+            "android",
+            "web"
+        ]
+    }
+}
