@@ -1,0 +1,242 @@
+BASE_URL = https://eduguard-fc5a0-default-rtdb.firebaseio.com
+
+[Auth]
+GET   /Users/${uid}.json
+Response: {
+  "email": "string",
+  "name": "string",
+  "role": "TEACHER | STUDENT | ADMIN | SUPER_ADMIN"
+}
+
+[Admins]
+GET   /Admins.json
+Response: {
+  "{uid}": {
+    "email": "string",
+    "name": "string"
+  }
+}
+
+GET   /Admins/${uid}.json
+Response: {
+  "email": "string",
+  "name": "string"
+}
+
+[Super Admin]
+GET   /Super Admin.json
+Response: {
+  "{uid}": {
+    "email": "string",
+    "name": "string"
+  }
+}
+
+[Teachers]
+GET   /Teachers.json
+Response: {
+  "{uid}": {
+    "email": "string",
+    "name": "string"
+  }
+}
+
+GET   /Teachers/${uid}.json
+Response: {
+  "email": "string",
+  "name": "string"
+}
+
+POST  /Teachers.json
+Body: {
+  "email": "string",
+  "name": "string"
+}
+Response: {
+  "name": "new_teacher_id"
+}
+
+PUT   /Users/${res.name}.json
+Body: {
+  "email": "string",
+  "name": "string",
+  "role": "TEACHER"
+}
+Response: (Same as Body)
+
+[Students]
+GET   /Students.json
+Response: {
+  "{sid}": {
+    "name": "string",
+    "className": "string",
+    "parentEmail": "string",
+    "classId": "string",
+    "parentId": "string",
+    "marks": "number",
+    "attendance": "number",
+    "riskScore": "number",
+    "riskLevel": "string"
+  }
+}
+
+GET   /Students/${sid}.json
+Response: {
+  "name": "string",
+  "className": "string",
+  "parentEmail": "string",
+  "classId": "string",
+  "parentId": "string",
+  "marks": "number",
+  "attendance": "number",
+  "riskScore": "number",
+  "riskLevel": "string"
+}
+
+POST  /Students.json
+Body: {
+  "name": "string",
+  "className": "string",
+  "parentEmail": "string",
+  "classId": "string",
+  "parentId": "string",
+  "marks": "number",
+  "attendance": "number",
+  "riskScore": "number",
+  "riskLevel": "string"
+}
+Response: {
+  "name": "new_student_id"
+}
+
+[Classes]
+GET   /Classes.json
+Response: {
+  "{cid}": {
+    "className": "string",
+    "section": "string",
+    "teacherId": "string",
+    "teacherEmail": "string"
+  }
+}
+
+GET   /Classes/${cid}.json
+Response: {
+  "className": "string",
+  "section": "string",
+  "teacherId": "string",
+  "teacherEmail": "string"
+}
+
+POST  /Classes.json
+Body: {
+  "className": "string",
+  "section": "string"
+}
+Response: {
+  "name": "new_class_id"
+}
+
+PUT   /Classes/${classId}/teacherId.json
+Body: "string (teacher_id)"
+Response: "string (teacher_id)"
+
+PUT   /Classes/${classId}/teacherEmail.json
+Body: "string (teacher_email)"
+Response: "string (teacher_email)"
+
+[Attendance]
+GET   /Attendance.json
+Response: {
+  "{cid}": {
+    "YYYY-MM-DD": {
+      "{studentId}": true | false
+    }
+  }
+}
+
+GET   /Attendance/${cid}.json
+Response: {
+  "YYYY-MM-DD": {
+    "{studentId}": true | false
+  }
+}
+
+PUT   /Attendance/${cid}/${date}.json
+Body: {
+  "{studentId}": true | false
+}
+Response: (Same as Body)
+
+[Homework]
+GET   /Homework.json
+Response: {
+  "{cid}": {
+    "{hwId}": {
+      "title": "string",
+      "description": "string",
+      "dueDate": "string",
+      "createdAt": "string",
+      "createdBy": "string"
+    }
+  }
+}
+
+GET   /Homework/${cid}.json
+Response: {
+  "{hwId}": {
+    "title": "string",
+    "description": "string",
+    "dueDate": "string",
+    "createdAt": "string",
+    "createdBy": "string"
+  }
+}
+
+POST  /Homework/${cid}.json
+Body: {
+  "title": "string",
+  "description": "string",
+  "dueDate": "string",
+  "createdAt": "string",
+  "createdBy": "string"
+}
+Response: {
+  "name": "new_homework_id"
+}
+
+[Homework Status]
+GET   /HomeworkStatus/${hwId}.json
+Response: {
+  "{studentId}": {
+    "status": "COMPLETED | PENDING",
+    "marks": "number"
+  }
+}
+
+[Notices]
+GET   /Notices.json
+Response: {
+  "{noticeId}": {
+    "title": "string",
+    "message": "string",
+    "createdBy": "string",
+    "createdAt": "string"
+  }
+}
+
+[Users]
+GET   /Users.json
+Response: {
+  "{uid}": {
+    "email": "string",
+    "name": "string",
+    "role": "TEACHER | STUDENT | ADMIN | SUPER_ADMIN"
+  }
+}
+
+[Teacher Counter]
+GET   /TeacherCounter.json
+Response: {
+  "count": "number"
+}
