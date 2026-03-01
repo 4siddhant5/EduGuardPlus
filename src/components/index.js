@@ -5,6 +5,10 @@ import {
   StyleSheet, ScrollView, Modal, TextInput,
 } from 'react-native';
 import { COLORS, SIZES, SHADOWS, FONTS } from '../constants/theme';
+import Graph from './Graph';
+
+export { Graph };
+
 
 // ─── LoadingScreen ────────────────────────────────────────────────────────────
 export const LoadingScreen = ({ message = 'Loading…' }) => (

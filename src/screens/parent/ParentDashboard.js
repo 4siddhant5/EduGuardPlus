@@ -143,6 +143,7 @@ export default function ParentDashboard() {
             selected={selected}
             setSelected={setSelected}
             attendance={attendance}
+            homework={homework}
           />
         )}
 
