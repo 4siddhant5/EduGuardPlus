@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: SIZES.md,
     color: COLORS.dark,
-    outlineStyle: 'none',
+    ...Platform.select({ web: { outlineStyle: 'none' } }),
   },
   eyeBtn: { padding: 8 },
 
