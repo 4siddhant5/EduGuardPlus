@@ -8,7 +8,7 @@ import { useAuth } from '../../services/AuthContext';
 import {
   getAllTeachers, getAllStudents, getAllClasses,
   getAllNotices, getAttendance,
-  createTeacher, createClass, assignClassToTeacher
+  createTeacher, createClass, assignClassToTeacher, createNotice
 } from '../../services/api';
 import {
   DashboardHeader, StatCard, SectionHeader,
@@ -55,11 +55,13 @@ export default function AdminDashboard() {
   const [teacherModal, setTeacherModal] = useState(false);
   const [classModal, setClassModal] = useState(false);
   const [assignModal, setAssignModal] = useState(false);
+  const [noticeModal, setNoticeModal] = useState(false);
 
   // Form States
   const [newTeacher, setNewTeacher] = useState({ name: '', email: '' });
   const [newClass, setNewClass] = useState({ className: '', section: '' });
   const [assignData, setAssignData] = useState({ classId: '', teacherId: '' });
+  const [newNotice, setNewNotice] = useState({ title: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
 
   const fetchAll = useCallback(async () => {
@@ -133,6 +135,29 @@ export default function AdminDashboard() {
       setAssignModal(false);
       setAssignData({ classId: '', teacherId: '' });
       setSuccess("Class assigned successfully!");
+      fetchAll();
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCreateNotice = async () => {
+    if (!newNotice.title || !newNotice.message) return setError("Title and Message required");
+    setSubmitting(true);
+    try {
+      const noticeData = {
+        title: newNotice.title,
+        message: newNotice.message,
+        createdBy: user?.name || 'Admin',
+        createdAt: new Date().toISOString()
+      };
+      await createNotice(noticeData, token);
+      setNoticeModal(false);
+      setNewNotice({ title: '', message: '' });
+      setSuccess("Notice posted successfully!");
       fetchAll();
       setTimeout(() => setSuccess(''), 3000);
     } catch (e) {
@@ -291,7 +316,13 @@ export default function AdminDashboard() {
   // ── Tab: Notices ─────────────────────────────────────────────────────────
   const NoticesTab = () => (
     <>
-      <SectionHeader title="Notices" subtitle={`${notices.length} total`} />
+      <SectionHeader
+        title="Notices"
+        subtitle={`${notices.length} total`}
+        rightAction={
+          <PrimaryButton title="Post Notice" onPress={() => setNoticeModal(true)} style={{ paddingVertical: 8, paddingHorizontal: 12, backgroundColor: COLORS.info }} />
+        }
+      />
       {notices.length === 0
         ? <EmptyState icon={<FaBell size={48} color={COLORS.medium} />} message="No notices posted." />
         : notices.map(n => (
@@ -430,6 +461,28 @@ export default function AdminDashboard() {
             </TouchableOpacity>
           ))}
         </View>
+      </ModalForm>
+
+      <ModalForm
+        visible={noticeModal}
+        title="Post Notice"
+        onClose={() => setNoticeModal(false)}
+        onSubmit={handleCreateNotice}
+        loading={submitting}
+      >
+        <TextInputField
+          label="Notice Title"
+          placeholder="e.g. strict meeting tomorrow"
+          value={newNotice.title}
+          onChangeText={(t) => setNewNotice({ ...newNotice, title: t })}
+        />
+        <TextInputField
+          label="Message/Content"
+          placeholder="Write the notice details..."
+          value={newNotice.message}
+          onChangeText={(t) => setNewNotice({ ...newNotice, message: t })}
+          multiline
+        />
       </ModalForm>
     </View>
   );

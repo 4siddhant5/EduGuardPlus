@@ -89,6 +89,7 @@ export const getHomeworkStatus = (hwId, token) => get(`HomeworkStatus/${hwId}`, 
 
 // ─── Notices ─────────────────────────────────────────────────────────────────
 export const getAllNotices = (token) => get('Notices', token);
+export const createNotice = (noticeData, token) => post('Notices', noticeData, token);
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 export const getAllUsers = (token) => get('Users', token);
