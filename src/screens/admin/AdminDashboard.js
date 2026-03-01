@@ -17,10 +17,22 @@ import {
   PrimaryButton, ModalForm, TextInputField, SuccessBox
 } from '../../components';
 import { COLORS, SIZES, FONTS } from '../../constants/theme';
-import {
-  FaChalkboardTeacher, FaUserGraduate, FaSchool, FaExclamationTriangle,
-  FaCalendarAlt, FaUsers, FaBell, FaBullseye, FaEdit, FaBoxOpen, FaChartPie
-} from 'react-icons/fa';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
+// Map the FontAwesome5 icons to match the names used in the component
+const mapIcon = (name) => (props) => <FontAwesome5 name={name} {...props} />;
+
+const FaChalkboardTeacher = mapIcon('chalkboard-teacher');
+const FaUserGraduate = mapIcon('user-graduate');
+const FaSchool = mapIcon('school');
+const FaExclamationTriangle = mapIcon('exclamation-triangle');
+const FaCalendarAlt = mapIcon('calendar-alt');
+const FaUsers = mapIcon('users');
+const FaBell = mapIcon('bell');
+const FaBullseye = mapIcon('bullseye');
+const FaEdit = mapIcon('edit');
+const FaBoxOpen = mapIcon('box-open');
+const FaChartPie = mapIcon('chart-pie');
 
 const toArray = (obj) =>
   obj ? Object.entries(obj).map(([id, val]) => ({ id, ...val })) : [];
