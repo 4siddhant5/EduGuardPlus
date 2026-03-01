@@ -1,20 +1,23 @@
-// src/screens/auth/LoginScreen.js
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
-  ScrollView, ActivityIndicator, Alert,
+  ScrollView, ActivityIndicator, useWindowDimensions
 } from 'react-native';
 import { useAuth } from '../../services/AuthContext';
 import { COLORS, SIZES, FONTS, SHADOWS } from '../../constants/theme';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function LoginScreen() {
   const { login } = useAuth();
-  const [email,    setEmail]    = useState('');
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 768; // Tablet/Web Breakpoint
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading,  setLoading]  = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [error,    setError]    = useState('');
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -25,7 +28,6 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      // Navigation handled automatically by RootNavigator via role
     } catch (e) {
       setError('Invalid credentials. Please try again.');
     } finally {
@@ -33,85 +35,95 @@ export default function LoginScreen() {
     }
   };
 
+  const renderHero = () => (
+    <View style={isLargeScreen ? styles.heroLarge : styles.heroMobile}>
+      <MaterialCommunityIcons name="school" size={isLargeScreen ? 80 : 56} color={isLargeScreen ? '#fff' : COLORS.primary} />
+      <Text style={[styles.appName, isLargeScreen && styles.appNameLarge]}>EduGuard</Text>
+      <Text style={[styles.tagline, isLargeScreen && styles.taglineLarge]}>
+        Smart School Management
+      </Text>
+    </View>
+  );
+
+  const renderForm = () => (
+    <View style={[styles.card, isLargeScreen && styles.cardLarge]}>
+      <Text style={styles.title}>Sign In</Text>
+      <Text style={styles.subtitle}>Use your school account</Text>
+
+      {error ? (
+        <View style={styles.errorBox}>
+          <MaterialCommunityIcons name="alert-circle" size={20} color={COLORS.danger} style={{ marginRight: 8 }} />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
+
+      <Text style={styles.label}>Email</Text>
+      <View style={styles.inputContainer}>
+        <MaterialCommunityIcons name="email-outline" size={20} color={COLORS.medium} style={styles.inputIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="you@school.com"
+          placeholderTextColor={COLORS.medium}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+
+      <Text style={styles.label}>Password</Text>
+      <View style={styles.inputContainer}>
+        <MaterialCommunityIcons name="lock-outline" size={20} color={COLORS.medium} style={styles.inputIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor={COLORS.medium}
+          secureTextEntry={!showPass}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPass(!showPass)}>
+          <MaterialCommunityIcons name={showPass ? "eye-off-outline" : "eye-outline"} size={20} color={COLORS.medium} />
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.loginBtn, loading && { opacity: 0.7 }]}
+        onPress={handleLogin}
+        disabled={loading}
+        activeOpacity={0.85}
+      >
+        {loading
+          ? <ActivityIndicator color="#fff" />
+          : <Text style={styles.loginBtnText}>Sign In →</Text>}
+      </TouchableOpacity>
+    </View>
+  );
+
+  if (isLargeScreen) {
+    return (
+      <View style={styles.splitRoot}>
+        <View style={styles.leftPane}>
+          {renderHero()}
+          <Text style={styles.footerLarge}>© 2026 EduGuard · All rights reserved</Text>
+        </View>
+        <View style={styles.rightPane}>
+          <KeyboardAvoidingView behavior="padding" style={styles.formContainerCenter}>
+            {renderForm()}
+          </KeyboardAvoidingView>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-
-        {/* Hero */}
-        <View style={styles.hero}>
-          <Text style={styles.logo}>🎓</Text>
-          <Text style={styles.appName}>EduGuard</Text>
-          <Text style={styles.tagline}>Smart School Management</Text>
-        </View>
-
-        {/* Card */}
-        <View style={styles.card}>
-          <Text style={styles.title}>Sign In</Text>
-          <Text style={styles.subtitle}>Use your school account</Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>⚠️  {error}</Text>
-            </View>
-          ) : null}
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@school.com"
-            placeholderTextColor={COLORS.medium}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passRow}>
-            <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0 }]}
-              placeholder="••••••••"
-              placeholderTextColor={COLORS.medium}
-              secureTextEntry={!showPass}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPass(!showPass)}>
-              <Text style={styles.eyeIcon}>{showPass ? '🙈' : '👁️'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.loginBtn, loading && { opacity: 0.7 }]}
-            onPress={handleLogin}
-            disabled={loading}
-            activeOpacity={0.85}
-          >
-            {loading
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.loginBtnText}>Sign In →</Text>}
-          </TouchableOpacity>
-
-          {/* Role hints */}
-          <View style={styles.roleHints}>
-            <Text style={styles.hintTitle}>Role-based access:</Text>
-            {[
-              { role: 'Super Admin', color: COLORS.secondary },
-              { role: 'Admin',       color: COLORS.primary },
-              { role: 'Teacher',     color: COLORS.success },
-              { role: 'Parent',      color: COLORS.warning },
-            ].map(({ role, color }) => (
-              <View key={role} style={styles.hintRow}>
-                <View style={[styles.dot, { backgroundColor: color }]} />
-                <Text style={styles.hintText}>{role}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
+        {renderHero()}
+        {renderForm()}
         <Text style={styles.footer}>© 2026 EduGuard · All rights reserved</Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -119,45 +131,110 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  root:   { flex: 1, backgroundColor: COLORS.primary },
+  // Mobile Layout
+  root: { flex: 1, backgroundColor: COLORS.light },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: SIZES.padding },
+  heroMobile: { alignItems: 'center', marginBottom: 28 },
 
-  hero: { alignItems: 'center', marginBottom: 28 },
-  logo:    { fontSize: 56, marginBottom: 6 },
-  appName: { fontSize: SIZES.h1, fontWeight: FONTS.bold, color: '#fff', letterSpacing: 1 },
-  tagline: { fontSize: SIZES.sm, color: 'rgba(255,255,255,0.75)', marginTop: 4 },
+  // Split Screen Layout
+  splitRoot: { flex: 1, flexDirection: 'row', backgroundColor: COLORS.light },
+  leftPane: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40
+  },
+  rightPane: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.light
+  },
+  heroLarge: { alignItems: 'center' },
+  formContainerCenter: { width: '100%', maxWidth: 440 },
 
+  // Typography & Branding
+  appName: { fontSize: SIZES.h1, fontWeight: FONTS.bold, color: COLORS.primary, letterSpacing: 1, marginTop: 12 },
+  appNameLarge: { color: COLORS.white, fontSize: 36, marginTop: 16 },
+  tagline: { fontSize: SIZES.md, color: COLORS.medium, marginTop: 4 },
+  taglineLarge: { color: 'rgba(255,255,255,0.8)', fontSize: SIZES.lg, marginTop: 8 },
+
+  // Card & Form
   card: {
-    backgroundColor: COLORS.white, borderRadius: 20,
-    padding: 24, ...SHADOWS.card,
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: 24,
+    ...SHADOWS.card,
+    elevation: 5,
   },
-  title:    { fontSize: SIZES.xxl, fontWeight: FONTS.bold, color: COLORS.dark },
-  subtitle: { fontSize: SIZES.sm, color: COLORS.medium, marginBottom: 16, marginTop: 2 },
+  cardLarge: {
+    padding: 32,
+    borderRadius: 24,
+    width: '100%',
+  },
+  title: { fontSize: SIZES.xxl, fontWeight: FONTS.bold, color: COLORS.dark },
+  subtitle: { fontSize: SIZES.sm, color: COLORS.medium, marginBottom: 24, marginTop: 4 },
 
-  errorBox: { backgroundColor: '#FEF2F2', borderRadius: 8, padding: 10, marginBottom: 12, borderLeftWidth: 3, borderLeftColor: COLORS.danger },
-  errorText: { color: COLORS.danger, fontSize: SIZES.sm },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderRadius: SIZES.radiusSm,
+    padding: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.danger
+  },
+  errorText: { color: COLORS.danger, fontSize: SIZES.sm, flex: 1 },
 
-  label: { fontSize: SIZES.sm, fontWeight: FONTS.semiBold, color: COLORS.dark, marginBottom: 6, marginTop: 14 },
+  label: { fontSize: SIZES.sm, fontWeight: FONTS.semiBold, color: COLORS.dark, marginBottom: 8 },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderRadius: SIZES.radius,
+    backgroundColor: '#F8FAFC',
+    marginBottom: 16,
+    paddingHorizontal: 12,
+  },
+  inputIcon: { marginRight: 8 },
   input: {
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: SIZES.radiusSm,
-    padding: 12, fontSize: SIZES.md, color: COLORS.dark, backgroundColor: COLORS.light,
-    marginBottom: 4,
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: SIZES.md,
+    color: COLORS.dark,
+    outlineStyle: 'none',
   },
-  passRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  eyeBtn:  { padding: 10, marginLeft: 6 },
-  eyeIcon: { fontSize: 18 },
+  eyeBtn: { padding: 8 },
 
   loginBtn: {
-    backgroundColor: COLORS.primary, borderRadius: SIZES.radius,
-    padding: 15, alignItems: 'center', marginTop: 20,
+    backgroundColor: COLORS.primary,
+    borderRadius: SIZES.radius,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   loginBtnText: { color: '#fff', fontSize: SIZES.lg, fontWeight: FONTS.bold },
 
-  roleHints: { marginTop: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
-  hintTitle: { fontSize: SIZES.xs, color: COLORS.medium, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 },
-  hintRow:   { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
-  dot:       { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
-  hintText:  { fontSize: SIZES.sm, color: COLORS.medium },
+  // Role Hints (Badges)
+  roleHintsContainer: { marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: COLORS.border },
+  hintTitle: { fontSize: 11, color: COLORS.medium, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1, fontWeight: FONTS.semiBold },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  badgeText: { fontSize: 11, fontWeight: FONTS.semiBold },
 
-  footer: { textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: SIZES.xs, marginTop: 20 },
+  // Footers
+  footer: { textAlign: 'center', color: COLORS.medium, fontSize: SIZES.xs, marginTop: 24 },
+  footerLarge: { position: 'absolute', bottom: 30, color: 'rgba(255,255,255,0.6)', fontSize: SIZES.sm },
 });

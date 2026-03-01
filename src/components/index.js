@@ -2,7 +2,7 @@
 import React from 'react';
 import {
   View, Text, TouchableOpacity, ActivityIndicator,
-  StyleSheet, ScrollView,
+  StyleSheet, ScrollView, Modal, TextInput,
 } from 'react-native';
 import { COLORS, SIZES, SHADOWS, FONTS } from '../constants/theme';
 
@@ -29,17 +29,20 @@ export const Card = ({ children, style }) => (
 // ─── StatCard ─────────────────────────────────────────────────────────────────
 export const StatCard = ({ label, value, icon, color = COLORS.primary }) => (
   <View style={[styles.statCard, { borderLeftColor: color }]}>
-    <Text style={styles.statIcon}>{icon}</Text>
+    {typeof icon === 'string' ? <Text style={styles.statIcon}>{icon}</Text> : <View style={{ marginBottom: 4 }}>{icon}</View>}
     <Text style={[styles.statValue, { color }]}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
   </View>
 );
 
 // ─── SectionHeader ───────────────────────────────────────────────────────────
-export const SectionHeader = ({ title, subtitle }) => (
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    {subtitle ? <Text style={styles.sectionSubtitle}>{subtitle}</Text> : null}
+export const SectionHeader = ({ title, subtitle, rightAction }) => (
+  <View style={[styles.sectionHeader, rightAction && { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+    <View>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {subtitle ? <Text style={styles.sectionSubtitle}>{subtitle}</Text> : null}
+    </View>
+    {rightAction && <View>{rightAction}</View>}
   </View>
 );
 
@@ -82,7 +85,7 @@ export const ListRow = ({ left, right, onPress }) => (
 // ─── EmptyState ──────────────────────────────────────────────────────────────
 export const EmptyState = ({ icon = '📭', message = 'Nothing here yet.' }) => (
   <View style={styles.emptyState}>
-    <Text style={styles.emptyIcon}>{icon}</Text>
+    {typeof icon === 'string' ? <Text style={styles.emptyIcon}>{icon}</Text> : <View style={{ marginBottom: 12 }}>{icon}</View>}
     <Text style={styles.emptyText}>{message}</Text>
   </View>
 );
@@ -126,12 +129,12 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: COLORS.card, borderRadius: SIZES.radius,
     padding: 14, margin: 6, borderLeftWidth: 4, alignItems: 'flex-start', ...SHADOWS.card,
   },
-  statIcon:  { fontSize: 22, marginBottom: 4 },
+  statIcon: { fontSize: 22, marginBottom: 4 },
   statValue: { fontSize: SIZES.xxl, fontWeight: FONTS.bold },
   statLabel: { fontSize: SIZES.sm, color: COLORS.medium, marginTop: 2 },
 
   sectionHeader: { marginBottom: 10, marginTop: 16 },
-  sectionTitle:  { fontSize: SIZES.lg, fontWeight: FONTS.bold, color: COLORS.dark },
+  sectionTitle: { fontSize: SIZES.lg, fontWeight: FONTS.bold, color: COLORS.dark },
   sectionSubtitle: { fontSize: SIZES.sm, color: COLORS.medium, marginTop: 2 },
 
   badge: { borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, borderWidth: 1, alignSelf: 'flex-start' },
@@ -146,14 +149,74 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyText: { color: COLORS.medium, fontSize: SIZES.md },
 
-  dashHeader: { padding: 20, paddingTop: 50, paddingBottom: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
+  dashHeader: { padding: 20, paddingTop: 20, paddingBottom: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   dashGreeting: { color: 'rgba(255,255,255,0.8)', fontSize: SIZES.sm },
-  dashName:     { color: '#fff', fontSize: SIZES.xxl, fontWeight: FONTS.bold, marginTop: 2 },
-  dashRole:     { color: 'rgba(255,255,255,0.7)', fontSize: SIZES.xs, marginTop: 2, letterSpacing: 1 },
-  logoutBtn:    { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6 },
-  logoutText:   { color: '#fff', fontSize: SIZES.sm, fontWeight: FONTS.semiBold },
+  dashName: { color: '#fff', fontSize: SIZES.xxl, fontWeight: FONTS.bold, marginTop: 2 },
+  dashRole: { color: 'rgba(255,255,255,0.7)', fontSize: SIZES.xs, marginTop: 2, letterSpacing: 1 },
+  logoutBtn: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6 },
+  logoutText: { color: '#fff', fontSize: SIZES.sm, fontWeight: FONTS.semiBold },
 
   noticeTitle: { fontSize: SIZES.md, fontWeight: FONTS.bold, color: COLORS.dark },
-  noticeMsg:   { fontSize: SIZES.sm, color: COLORS.medium, marginTop: 4 },
-  noticeMeta:  { fontSize: SIZES.xs, color: COLORS.medium, marginTop: 8 },
+  noticeMsg: { fontSize: SIZES.sm, color: COLORS.medium, marginTop: 4 },
+  noticeMeta: { fontSize: SIZES.xs, color: COLORS.medium, marginTop: 8 },
+
+  successBox: { backgroundColor: '#EcFDF5', borderRadius: SIZES.radiusSm, padding: 12, margin: 16, borderLeftWidth: 4, borderLeftColor: COLORS.success },
+  successText: { color: COLORS.success, fontSize: SIZES.md },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { width: '100%', backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: 20, ...SHADOWS.card, maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: SIZES.lg, fontWeight: FONTS.bold, color: COLORS.dark },
+  modalCloseBtn: { padding: 4 },
+  modalCloseText: { fontSize: 24, color: COLORS.medium, lineHeight: 24 },
+
+  inputContainer: { marginBottom: 14 },
+  inputLabel: { fontSize: SIZES.sm, fontWeight: FONTS.semiBold, color: COLORS.dark, marginBottom: 6 },
+  textInput: { borderWidth: 1.5, borderColor: COLORS.border, borderRadius: SIZES.radiusSm, padding: 12, fontSize: SIZES.md, color: COLORS.dark, backgroundColor: COLORS.light },
 });
+
+// ─── SuccessBox ──────────────────────────────────────────────────────────────
+export const SuccessBox = ({ message }) => (
+  <View style={styles.successBox}>
+    <Text style={styles.successText}>{message}</Text>
+  </View>
+);
+
+// ─── ModalForm ───────────────────────────────────────────────────────────────
+export const ModalForm = ({ visible, title, children, onClose, onSubmit, loading }) => (
+  <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>{title}</Text>
+          <TouchableOpacity style={styles.modalCloseBtn} onPress={onClose}>
+            <Text style={styles.modalCloseText}>×</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {children}
+        </ScrollView>
+
+        <PrimaryButton
+          title="Save"
+          onPress={onSubmit}
+          loading={loading}
+          style={{ marginTop: 20 }}
+        />
+      </View>
+    </View>
+  </Modal>
+);
+
+// ─── TextInputField ──────────────────────────────────────────────────────────
+export const TextInputField = ({ label, ...props }) => (
+  <View style={styles.inputContainer}>
+    {label ? <Text style={styles.inputLabel}>{label}</Text> : null}
+    <TextInput
+      style={styles.textInput}
+      placeholderTextColor={COLORS.medium}
+      {...props}
+    />
+  </View>
+);
